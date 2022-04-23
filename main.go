@@ -53,14 +53,15 @@ package main
 ////////////////////////////////////////////////////////////////////////////////////
 
 import (
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"strconv"
-	"time"
-
 	"database/sql"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/kelvins/geocoder"
 	_ "github.com/lib/pq"
@@ -180,19 +181,25 @@ func main() {
 
 	//Option 4
 	//Database application running on Google Cloud Platform.
-	db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=35.239.118.159 sslmode=disable port = 5433"
+	db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=/cloudsql/chicago-business-intelligencee:us-central1:mypostgres sslmode=disable"
 
 	db, err := sql.Open("postgres", db_connection)
 	if err != nil {
 		panic(err)
 	}
 
-	// Test the database connection
-	err = db.Ping()
-	if err != nil {
-		fmt.Println("Couldn't Connect to database")
-		panic(err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+
+	// // Test the database connection
+	// err = db.Ping()
+	// if err != nil {
+	// 	fmt.Println("Couldn't Connect to database")
+	// 	panic(err)
+	// }
 
 	// Spin in a loop and pull data from the city of chicago data portal
 	// Once every hour, day, week, etc.
