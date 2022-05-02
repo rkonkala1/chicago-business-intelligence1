@@ -76,6 +76,13 @@ type TaxiTripsJsonRecords []struct {
 	Dropoff_centroid_latitude  string `json:"dropoff_centroid_latitude"`
 	Dropoff_centroid_longitude string `json:"dropoff_centroid_longitude"`
 }
+type CovidCasesJsonRecords []struct {
+	Date                      string `json:"date"`
+	Day                       string `json:"day"`
+	People_tested_total       string `json:"people_tested_total"`
+	People_positive_total     string `json:"people_positive_total"`
+	People_not_positive_total string `json:"people_not_positive_total"`
+}
 
 type UnemploymentJsonRecords []struct {
 	Community_area                             string `json:"community_area"`
@@ -160,17 +167,18 @@ func main() {
 	// Establish connection to Postgres Database
 
 	// OPTION 1 - Postgress application running on localhost
-	//db_connection := "user=postgres dbname=chicago_business_intelligence password=Ramya@1814 host=localhost sslmode=disable"
+	// db_connection := "user=postgres dbname=chicago_business_intelligence password=Ramya@1814 host=localhost sslmode=disable"
 
 	// OPTION 2
 	// Docker container for the Postgres microservice - uncomment when deploy with host.docker.internal
-	//db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=host.docker.internal sslmode=disable port = 5433"
+	// db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=host.docker.internal sslmode=disable port = 5433"
 
 	// OPTION 3
 	// Docker container for the Postgress microservice - uncomment when deploy with IP address of the container
 	// To find your Postgres container IP, use the command with your network name listed in the docker compose file as follows:
 	// docker network inspect cbi_backend
-	//db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=172.19.0.2 sslmode=disable port = 5433"
+	// db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=172.19.0.2 sslmode=disable port = 5433"
+
 	//Option 4
 	//Database application running on Google Cloud Platform.
 	db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=/cloudsql/chicago-business-intelligencee:us-central1:mypostgress sslmode=disable port = 5432"
@@ -180,12 +188,18 @@ func main() {
 		panic(err)
 	}
 
-	// Test the database connection
-	//err = db.Ping()
-	//if err != nil {
-	//	fmt.Println("Couldn't Connect to database")
-	//	panic(err)
-	//}
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
+
+	// // Test the database connection
+	// err = db.Ping()
+	// if err != nil {
+	// 	fmt.Println("Couldn't Connect to database")
+	// 	panic(err)
+	// }
 
 	// Spin in a loop and pull data from the city of chicago data portal
 	// Once every hour, day, week, etc.
@@ -194,14 +208,9 @@ func main() {
 	for {
 		// build and fine-tune functions to pull data from different data sources
 		// This is a code snippet to show you how to pull data from different data sources//.
-		GetTaxiTrips(db)
+		// GetTaxiTrips(db)
 		GetUnemploymentRates(db)
 		GetBuildingPermits(db)
-		port := os.Getenv("PORT")
-		if port == "" {
-			port = "8080"
-		}
-		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 		// Pull the data once a day
 		// You might need to pull Taxi Trips and COVID data on daily basis
 		// but not the unemployment dataset becasue its dataset doesn't change every day
@@ -227,7 +236,7 @@ func GetTaxiTrips(db *sql.DB) {
 	// Get your geocoder.ApiKey from here :
 	// https://developers.google.com/maps/documentation/geocoding/get-api-key?authuser=2
 
-	geocoder.ApiKey = "AIzaSyC1WJwpnXBfSdk1hb8NA0fE2TOorWwAopI"
+	geocoder.ApiKey = " "
 
 	drop_table := `drop table if exists taxi_trips`
 	_, err := db.Exec(drop_table)
@@ -270,7 +279,6 @@ func GetTaxiTrips(db *sql.DB) {
 	body, _ := ioutil.ReadAll(res.Body)
 	var taxi_trips_list TaxiTripsJsonRecords
 	json.Unmarshal(body, &taxi_trips_list)
-
 	for i := 0; i < len(taxi_trips_list); i++ {
 
 		// We will execute defensive coding to check for messy/dirty/missing data values
@@ -337,6 +345,7 @@ func GetTaxiTrips(db *sql.DB) {
 		// fmt.Println(pickup_location)
 
 		pickup_address_list, _ := geocoder.GeocodingReverse(pickup_location)
+
 		pickup_address := pickup_address_list[0]
 		pickup_zip_code := pickup_address.PostalCode
 
@@ -375,7 +384,6 @@ func GetTaxiTrips(db *sql.DB) {
 		}
 
 	}
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
