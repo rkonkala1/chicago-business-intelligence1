@@ -188,12 +188,6 @@ func main() {
 		panic(err)
 	}
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
-
 	// // Test the database connection
 	// err = db.Ping()
 	// if err != nil {
@@ -211,6 +205,11 @@ func main() {
 		GetTaxiTrips(db)
 		GetUnemploymentRates(db)
 		GetBuildingPermits(db)
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080"
+		}
+		log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 		// Pull the data once a day
 		// You might need to pull Taxi Trips and COVID data on daily basis
 		// but not the unemployment dataset becasue its dataset doesn't change every day
