@@ -208,7 +208,7 @@ func main() {
 	for {
 		// build and fine-tune functions to pull data from different data sources
 		// This is a code snippet to show you how to pull data from different data sources//.
-		// GetTaxiTrips(db)
+		GetTaxiTrips(db)
 		GetUnemploymentRates(db)
 		GetBuildingPermits(db)
 		// Pull the data once a day
@@ -236,7 +236,7 @@ func GetTaxiTrips(db *sql.DB) {
 	// Get your geocoder.ApiKey from here :
 	// https://developers.google.com/maps/documentation/geocoding/get-api-key?authuser=2
 
-	geocoder.ApiKey = " "
+	geocoder.ApiKey = "AIzaSyC1WJwpnXBfSdk1hb8NA0fE2TOorWwAopI"
 
 	drop_table := `drop table if exists taxi_trips`
 	_, err := db.Exec(drop_table)
