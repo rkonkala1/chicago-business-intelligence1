@@ -160,7 +160,7 @@ func main() {
 	// Establish connection to Postgres Database
 
 	// OPTION 1 - Postgress application running on localhost
-	//db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=localhost sslmode=disable port = 5432"
+	//db_connection := "user=postgres dbname=chicago_business_intelligence password=Ramya@1814 host=localhost sslmode=disable"
 
 	// OPTION 2
 	// Docker container for the Postgres microservice - uncomment when deploy with host.docker.internal
@@ -172,7 +172,7 @@ func main() {
 	// docker network inspect cbi_backend
 	//db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=172.19.0.2 sslmode=disable port = 5433"
 	//Option 4
-	//Database application running on Google Cloud Platform. bubbly-granite-347918:us-central1:mypostgres
+	//Database application running on Google Cloud Platform.
 	db_connection := "user=postgres dbname=chicago_business_intelligence password=root host=/cloudsql/chicago-business-intelligencee:us-central1:mypostgress sslmode=disable port = 5432"
 
 	db, err := sql.Open("postgres", db_connection)
@@ -212,7 +212,6 @@ func main() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-
 func GetTaxiTrips(db *sql.DB) {
 
 	// This function is NOT complete
@@ -228,7 +227,7 @@ func GetTaxiTrips(db *sql.DB) {
 	// Get your geocoder.ApiKey from here :
 	// https://developers.google.com/maps/documentation/geocoding/get-api-key?authuser=2
 
-	geocoder.ApiKey = "AIzaSyC1WJwpnXBfSdk1hb8NA0fE2TOorWwAopI"
+	geocoder.ApiKey = " "
 
 	drop_table := `drop table if exists taxi_trips`
 	_, err := db.Exec(drop_table)
@@ -335,7 +334,7 @@ func GetTaxiTrips(db *sql.DB) {
 		}
 
 		// Comment the following line while not unit-testing
-		fmt.Println(pickup_location)
+		// fmt.Println(pickup_location)
 
 		pickup_address_list, _ := geocoder.GeocodingReverse(pickup_location)
 		pickup_address := pickup_address_list[0]
@@ -356,7 +355,7 @@ func GetTaxiTrips(db *sql.DB) {
 		dropoff_address := dropoff_address_list[0]
 		dropoff_zip_code := dropoff_address.PostalCode
 
-		sql := `INSERT INTO taxi_trips ("trip_id", "trip_start_timestamp", "trip_end_timestamp", "pickup_centroid_latitude", "pickup_centroid_longitude", "dropoff_centroid_latitude", "dropoff_centroid_longitude", "pickup_zip_code", 
+		sql := `INSERT INTO taxi_trips ("trip_id", "trip_start_timestamp", "trip_end_timestamp", "pickup_centroid_latitude", "pickup_centroid_longitude", "dropoff_centroid_latitude", "dropoff_centroid_longitude", "pickup_zip_code",
 			"dropoff_zip_code") values($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
 		_, err = db.Exec(
